@@ -1,3 +1,5 @@
+import type { SessionUser } from "@/lib/session";
+
 export const MOCK_STATS = {
   totalProperties: 50000,
   claimedParcels: 8000,
@@ -9,7 +11,7 @@ export const MOCK_STATS = {
   propertyOwnerPayouts: 1704000,
 };
 
-export const DEMO_USERS = [
+export const DEMO_USERS: SessionUser[] = [
   {
     id: "admin",
     name: "SkyTrade Executive",

@@ -163,7 +163,7 @@ export default function MunicipalityCalculator() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                 outerRadius={100}
                 fill="#8884d8"
                 dataKey="value"
@@ -176,7 +176,7 @@ export default function MunicipalityCalculator() {
                 contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px" }}
                 labelStyle={{ color: "var(--text)" }}
                 itemStyle={{ color: "var(--text)" }}
-                formatter={(value) => `$${value.toLocaleString()}`}
+                formatter={(value) => `$${(value ?? 0).toLocaleString()}`}
               />
             </PieChart>
           </ResponsiveContainer>
