@@ -15,18 +15,16 @@ export function LoginScreen() {
 
   const handleLogin = (user: (typeof DEMO_USERS)[0]) => {
     setLoading(user.id);
-    setTimeout(() => {
-      setSessionCookies(user);
-      logActivity({
-        userName: user.name,
-        userRole: user.role,
-        type: "logged_in",
-        action: "Logged in to SkyOS",
-        detail: `Session started for ${user.role} role`,
-        screen: "login",
-      });
-      router.push(user.redirectTo);
-    }, 100);
+    setSessionCookies(user);
+    logActivity({
+      userName: user.name,
+      userRole: user.role,
+      type: "logged_in",
+      action: "Logged in to SkyOS",
+      detail: `Session started for ${user.role} role`,
+      screen: "login",
+    });
+    router.push(user.redirectTo);
   };
 
   return (
