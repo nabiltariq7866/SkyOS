@@ -11,6 +11,9 @@ import {
   Wallet,
   Ticket,
   Globe,
+  Sparkles,
+  Zap,
+  Shield,
 } from "lucide-react";
 
 type IconName =
@@ -26,7 +29,10 @@ type IconName =
   | "properties"
   | "earnings"
   | "certificates"
-  | "brand";
+  | "brand"
+  | "copilot"
+  | "infrastructure"
+  | "insurance";
 
 export function NavIcon({ name, size = 18 }: { name: IconName; size?: number }) {
   const iconProps = { size, strokeWidth: 2 };
@@ -58,6 +64,12 @@ export function NavIcon({ name, size = 18 }: { name: IconName; size?: number }) 
       return <Ticket {...iconProps} />;
     case "brand":
       return <Globe {...iconProps} />;
+    case "copilot":
+      return <Sparkles {...iconProps} />;
+    case "infrastructure":
+      return <Zap {...iconProps} />;
+    case "insurance":
+      return <Shield {...iconProps} />;
     default:
       return <LayoutDashboard {...iconProps} />;
   }

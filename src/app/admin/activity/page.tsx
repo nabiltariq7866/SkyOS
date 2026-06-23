@@ -1,0 +1,144 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { AppShell } from "@/components/AppShell";
+import { DEMO_USERS } from "@/data/mockData";
+import { useApp } from "@/context/AppProvider";
+import { ACTIVITY_TYPE_LABELS } from "@/lib/activityLog";
+
+const TYPE_COLORS: Record<string, { bg: string; color: string }> = {
+  created: { bg: "#e6fbf2", color: "#055b65" },
+  updated: { bg: "#e8f4f2", color: "#45828b" },
+  generated: { bg: "#e0eef0", color: "#45828b" },
+  logged_in: { bg: "#e6fbf2", color: "#059669" },
+  logged_out: { bg: "#fffbeb", color: "#d97706" },
+  completed: { bg: "#e6fbf2", color: "#055b65" },
+  viewed: { bg: "#e0e5e9", color: "#45828b" },
+  searched: { bg: "#e6fbf2", color: "#1bd488" },
+  started: { bg: "#fffbeb", color: "#d97706" },
+  processed: { bg: "#d4e8ea", color: "#055b65" },
+  annotated: { bg: "#e8f4f2", color: "#1bd488" },
+  synced: { bg: "#e0eef0", color: "#45828b" },
+  approved: { bg: "#e6fbf2", color: "#059669" },
+  issued: { bg: "#e6fbf2", color: "#055b65" },
+  rejected: { bg: "#fff1f1", color: "#ef4444" },
+};
+
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+export default function AdminActivityPage() {
+  const adminUser = DEMO_USERS.find((u) => u.role === "admin")!;
+  const { activityEntries, refreshActivityLog, clearActivityLogStorage } = useApp();
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+
+  const filtered = useMemo(() => {
+    let list = [...activityEntries];
+    if (typeFilter !== "all") list = list.filter((e) => e.type === typeFilter);
+    if (roleFilter !== "all") list = list.filter((e) => e.userRole === roleFilter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (e) =>
+          e.userName.toLowerCase().includes(q) ||
+          e.action.toLowerCase().includes(q) ||
+          e.detail.toLowerCase().includes(q) ||
+          e.screen?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [activityEntries, search, typeFilter, roleFilter]);
+
+  return (
+    <AppShell role="admin" user={adminUser}>
+      <div style={{ marginBottom: "24px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "800", color: "var(--text)", marginBottom: "8px" }}>
+          Activity & Audit Log
+        </h2>
+        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>
+          All user actions, system events, and compliance trail
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "10px", padding: "14px" }}>
+            <div style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px" }}>Total Entries</div>
+            <div style={{ fontSize: "22px", fontWeight: "800", color: "var(--text)" }}>{filtered.length}</div>
+          </div>
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "10px", padding: "14px" }}>
+            <div style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px" }}>Admin Actions</div>
+            <div style={{ fontSize: "22px", fontWeight: "800", color: "var(--accent)" }}>{filtered.filter(e => e.userRole === "admin").length}</div>
+          </div>
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "10px", padding: "14px" }}>
+            <div style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px" }}>Permits Issued</div>
+            <div style={{ fontSize: "22px", fontWeight: "800", color: "#059669" }}>{filtered.filter(e => e.type === "issued" || e.type === "created").length}</div>
+          </div>
+          <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "10px", padding: "14px" }}>
+            <div style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "4px" }}>Alerts Raised</div>
+            <div style={{ fontSize: "22px", fontWeight: "800", color: "#ef4444" }}>{filtered.filter(e => e.detail.toLowerCase().includes("alert")).length}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "20px", padding: "16px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px" }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search user, action, detail…"
+          style={{ flex: 1, minWidth: "200px", padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", fontSize: "13px" }}
+        />
+        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", fontSize: "13px" }}>
+          <option value="all">All types</option>
+          {Object.entries(ACTIVITY_TYPE_LABELS).map(([k, v]) => (
+            <option key={k} value={k}>{v}</option>
+          ))}
+        </select>
+        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} style={{ padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", fontSize: "13px" }}>
+          <option value="all">All roles</option>
+          <option value="admin">Admin</option>
+          <option value="municipality">Municipality</option>
+          <option value="operator">Operator</option>
+          <option value="owner">Property Owner</option>
+        </select>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button onClick={refreshActivityLog} style={{ padding: "10px 16px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)", fontSize: "13px", cursor: "pointer" }}>
+            Refresh
+          </button>
+          <button onClick={() => { 
+            if (window.confirm("Reset activity log to default data?")) {
+              localStorage.removeItem("skyos_activity_log");
+              refreshActivityLog();
+            }
+          }} style={{ padding: "10px 16px", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg)", color: "var(--muted)", fontSize: "13px", cursor: "pointer" }}>
+            Reset to Default
+          </button>
+        </div>
+      </div>
+
+      <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "14px", overflow: "hidden" }}>
+        {filtered.length === 0 ? (
+          <div style={{ padding: "40px", textAlign: "center", color: "var(--muted)" }}>No activity entries match your filters</div>
+        ) : (
+          filtered.map((e) => {
+            const colors = TYPE_COLORS[e.type] ?? { bg: "#e0e5e9", color: "#45828b" };
+            return (
+              <div key={e.id} style={{ display: "flex", gap: "14px", padding: "14px 18px", borderBottom: "1px solid var(--border)", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "10px", fontWeight: "700", padding: "4px 8px", borderRadius: "6px", background: colors.bg, color: colors.color, whiteSpace: "nowrap" }}>
+                  {ACTIVITY_TYPE_LABELS[e.type] ?? e.type}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--text)" }}>{e.action}</div>
+                  <div style={{ fontSize: "12px", color: "var(--muted)", marginTop: "2px" }}>{e.detail}</div>
+                  <div style={{ fontSize: "11px", color: "var(--muted)", marginTop: "4px" }}>
+                    {e.userName} · {e.userRole} · {e.screen ?? "—"} · {formatTime(e.timestamp)}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </AppShell>
+  );
+}

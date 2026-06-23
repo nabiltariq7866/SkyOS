@@ -6,15 +6,25 @@ import { NavIcon } from "@/components/NavIcon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { DEMO_USERS } from "@/data/mockData";
 import { setSessionCookies } from "@/lib/session";
+import { useApp } from "@/context/AppProvider";
 
 export function LoginScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
+  const { logActivity } = useApp();
 
   const handleLogin = (user: (typeof DEMO_USERS)[0]) => {
     setLoading(user.id);
     setTimeout(() => {
       setSessionCookies(user);
+      logActivity({
+        userName: user.name,
+        userRole: user.role,
+        type: "logged_in",
+        action: "Logged in to SkyOS",
+        detail: `Session started for ${user.role} role`,
+        screen: "login",
+      });
       router.push(user.redirectTo);
     }, 1200);
   };

@@ -1,7 +1,27 @@
 "use client";
 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+} from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { DEMO_USERS } from "@/data/mockData";
+
+const monthlyEarningsData = [
+  { month: "Jan", total: 3800 },
+  { month: "Feb", total: 4200 },
+  { month: "Mar", total: 4800 },
+  { month: "Apr", total: 4500 },
+  { month: "May", total: 5100 },
+  { month: "Jun", total: 5400 },
+];
 
 export default function OwnerEarnings() {
   const ownerUser = DEMO_USERS.find((u) => u.role === "owner")!;
@@ -37,6 +57,42 @@ export default function OwnerEarnings() {
           <div className="kpi-value">$4,562</div>
           <div className="kpi-trend up">+10.1% YoY</div>
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: "24px" }}>
+        <h2 style={{ fontSize: "16px", fontWeight: "800", color: "var(--text)", marginBottom: "16px" }}>
+          Monthly Earnings Trend
+        </h2>
+        <ResponsiveContainer width="100%" height={280}>
+          <AreaChart data={monthlyEarningsData}>
+            <defs>
+              <linearGradient id="colorEarningsPage" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#1bd488" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#1bd488" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="month" stroke="var(--muted)" tick={{ fill: "var(--muted)", fontSize: 12 }} />
+            <YAxis 
+              stroke="var(--muted)" 
+              tick={{ fill: "var(--muted)", fontSize: 12 }} 
+              tickFormatter={(value) => `$${value/1000}k`}
+            />
+            <Tooltip 
+              contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "8px" }}
+              labelStyle={{ color: "var(--text)" }}
+              itemStyle={{ color: "var(--text)" }}
+            />
+            <Area
+              type="monotone"
+              dataKey="total"
+              stroke="#1bd488"
+              strokeWidth={3}
+              fill="url(#colorEarningsPage)"
+              name="Earnings"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
 
       <div className="card">
