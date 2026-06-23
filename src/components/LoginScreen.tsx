@@ -26,7 +26,7 @@ export function LoginScreen() {
         screen: "login",
       });
       router.push(user.redirectTo);
-    }, 1200);
+    }, 100);
   };
 
   return (
